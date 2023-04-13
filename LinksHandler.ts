@@ -4,7 +4,7 @@ import { Utils } from './utils';
 import { MyPluginSettings } from './main';
 
 export class LinksHandler {
-	
+
 
 
 	settings: MyPluginSettings;
@@ -56,7 +56,12 @@ export class LinksHandler {
 			await this.app.vault.copy(tfile, fullPath);
 	}
 
-	async copyNote(sourceNotePath: string, destNotePath: string):Promise<TFile | null> {
+	/** copy一个笔记到目的目录
+	 * @param sourceNotePath {string} 笔记的路径
+	 * @param destNotePath {string}  笔记的目的路径
+	 * @return {TFile} 新创建的笔记的TFile对象
+	 */
+	async copyNote(sourceNotePath: string, destNotePath: string): Promise<TFile | null> {
 		const sourceNote = this.app.metadataCache.getFirstLinkpathDest(sourceNotePath, sourceNotePath);
 		const newNotePath = this.generateFileCopyName(destNotePath);
 		if (!await this.app.vault.adapter.exists(path.dirname(newNotePath)))
