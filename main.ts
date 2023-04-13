@@ -1,4 +1,4 @@
-import { Editor, MarkdownView, Notice, Plugin } from 'obsidian';
+import { Editor, getLinkpath, iterateCacheRefs, MarkdownView, Notice, Plugin, TFile } from 'obsidian';
 //import * as path from 'path';
 //import { Utils } from 'utils';
 import { LinksHandler } from './LinksHandler';
@@ -50,18 +50,24 @@ export default class MyPlugin extends Plugin {
 	}
 
 	async collectNote(sourceNotePath: string) {
-		if (path.extname(sourceNotePath) == "md") {
+		if (path.extname(sourceNotePath) === "md") {
 			new Notice("请指定一个markdown笔记文件名！", 10);
 			return
 		}
 		const targedNotePath = this.settings.collectionPath + "/" + path.basename(sourceNotePath);
-		console.log("targedNotePath", targedNotePath,);
 		const newNotePath = this.lh.generateFileCopyName(targedNotePath);
-		console.log('newNotePath:', newNotePath);
-		await this.lh.copyNote(sourceNotePath, newNotePath);
+		return await this.lh.copyFile(sourceNotePath, newNotePath);
+	}
 
+	async collectAttachment() {
+		const attachments: TFile[] = [];
+		const cachedMetadata = this.app.metadataCache.getFileCache(noteFile);
+		if (cachedMetadata) iterateCacheRefs(cachedMetadata, (ref) => {
 
+			const attachment= this.app.metadataCache.getFirstLinkpathDest(getLinkpath(ref.link), noteFile.path);
+			if (attachment) attachments.push(attachment);
 
+		})
 	}
 }
 

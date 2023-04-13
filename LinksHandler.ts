@@ -44,29 +44,19 @@ export class LinksHandler {
 		return file;
 	}
 
-	async copyFile(tfile: TFile, newPath: string) {
-		const fullPath = normalizePath(newPath + "/" + tfile.path);
-		const fullFolder = normalizePath(newPath + (tfile.parent.isRoot() ? "" : "/" + tfile.parent.path));
 
-		if (!await this.app.vault.adapter.exists(fullFolder))
-			await this.app.vault.createFolder(fullFolder);
-		const havefile = await this.app.vault.adapter.exists(fullPath);
-		console.log("havefile", havefile);
-		if (!havefile)
-			await this.app.vault.copy(tfile, fullPath);
-	}
-
-	/** copy一个笔记到目的目录
-	 * @param sourceNotePath {string} 笔记的路径
-	 * @param destNotePath {string}  笔记的目的路径
-	 * @return {TFile} 新创建的笔记的TFile对象
+	/** 复制一个文件为目的文件，如果文件同名将重命名文件，尾数加1
+	 * @param sourceFilePath {string} 文件的源路径
+	 * @param destFilePath {string}  文件的目的路径
+	 * @return {TFile} 新创建文件的TFile对象
+	 * 
 	 */
-	async copyNote(sourceNotePath: string, destNotePath: string): Promise<TFile | null> {
-		const sourceNote = this.app.metadataCache.getFirstLinkpathDest(sourceNotePath, sourceNotePath);
-		const newNotePath = this.generateFileCopyName(destNotePath);
-		if (!await this.app.vault.adapter.exists(path.dirname(newNotePath)))
-			await this.app.vault.createFolder(path.dirname(newNotePath));
-		return sourceNote && await this.app.vault.copy(sourceNote, newNotePath);
+	async copyFile(sourceFilePath: string, destFilePath: string): Promise<TFile | null> {
+		const sourceFile = this.app.metadataCache.getFirstLinkpathDest(sourceFilePath, sourceFilePath);
+		const newFilePath = this.generateFileCopyName(destFilePath);
+		if (!await this.app.vault.adapter.exists(path.dirname(newFilePath)))
+			await this.app.vault.createFolder(path.dirname(newFilePath));
+		return sourceFile && await this.app.vault.copy(sourceFile, newFilePath);
 
 	}
 
